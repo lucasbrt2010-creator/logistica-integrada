@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import { PermissionsProvider } from "@/contexts/PermissionsContext";
-import { ErrorBoundary } from "@/components/custom/ErrorBoundary";
+import { Providers } from "./providers";
 import { PWAInstallPrompt } from "@/components/custom/PWAInstallPrompt";
 import Script from "next/script";
 
@@ -70,16 +67,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ErrorBoundary>
-          <ThemeProvider>
-            <PermissionsProvider>
-              <AuthProvider>
-                {children}
-                <PWAInstallPrompt />
-              </AuthProvider>
-            </PermissionsProvider>
-          </ThemeProvider>
-        </ErrorBoundary>
+        <Providers>
+          {children}
+          <PWAInstallPrompt />
+        </Providers>
 
         <Script id="register-sw" strategy="afterInteractive">
           {`

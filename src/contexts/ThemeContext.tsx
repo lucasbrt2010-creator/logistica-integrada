@@ -10,7 +10,14 @@ interface ThemeContextType {
   setTheme: (theme: Theme) => void;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+// Criar contexto com valor padrão para evitar erros durante SSR
+const defaultContextValue: ThemeContextType = {
+  theme: 'light',
+  toggleTheme: () => {},
+  setTheme: () => {}
+};
+
+const ThemeContext = createContext<ThemeContextType>(defaultContextValue);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light');
@@ -28,8 +35,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', newTheme);
+      document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    }
   };
 
   const toggleTheme = () => {
@@ -37,13 +46,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme(newTheme);
   };
 
-  // Evitar flash de conteúdo não estilizado
-  if (!mounted) {
-    return <>{children}</>;
-  }
+  const value = {
+    theme,
+    toggleTheme,
+    setTheme
+  };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
@@ -51,8 +61,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 export function useTheme() {
   const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme deve ser usado dentro de um ThemeProvider');
-  }
+  // O contexto sempre terá um valor (defaultContextValue ou o valor do provider)
   return context;
 }

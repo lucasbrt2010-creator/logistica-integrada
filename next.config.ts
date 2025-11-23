@@ -11,6 +11,22 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   
+  // Configuração para módulos externos (xlsx)
+  webpack: (config, { isServer }) => {
+    // Configuração para xlsx funcionar no cliente e servidor
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+      };
+    }
+    
+    return config;
+  },
+  
   // Configuração de imagens para principais provedores
   images: {
     remotePatterns: [

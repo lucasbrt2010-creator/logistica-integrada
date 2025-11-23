@@ -41,17 +41,17 @@ const PermissionsContext = createContext<PermissionsContextType | undefined>(und
 
 export function PermissionsProvider({ children }: { children: ReactNode }) {
   const [operatorPermissions, setOperatorPermissions] = useState<PermissionConfig>(defaultOperatorPermissions);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    // Carregar permissões salvas do localStorage
-    const savedPermissions = localStorage.getItem('operator_permissions');
-    if (savedPermissions) {
-      try {
-        setOperatorPermissions(JSON.parse(savedPermissions));
-      } catch (error) {
-        console.error('Erro ao carregar permissões:', error);
+    // Carregar permissões salvas do localStorage (apenas no cliente)
+    if (typeof window !== 'undefined') {
+      const savedPermissions = localStorage.getItem('operator_permissions');
+      if (savedPermissions) {
+        try {
+          setOperatorPermissions(JSON.parse(savedPermissions));
+        } catch (error) {
+          console.error('Erro ao carregar permissões:', error);
+        }
       }
     }
   }, []);
@@ -59,21 +59,21 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
   const updateOperatorPermissions = (permissions: Partial<PermissionConfig>) => {
     const newPermissions = { ...operatorPermissions, ...permissions };
     setOperatorPermissions(newPermissions);
-    localStorage.setItem('operator_permissions', JSON.stringify(newPermissions));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('operator_permissions', JSON.stringify(newPermissions));
+    }
   };
 
   const resetToDefaults = () => {
     setOperatorPermissions(defaultOperatorPermissions);
-    localStorage.setItem('operator_permissions', JSON.stringify(defaultOperatorPermissions));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('operator_permissions', JSON.stringify(defaultOperatorPermissions));
+    }
   };
 
   const canConfigurePermissions = (role: string) => {
     return role === 'admin' || role === 'coordenador';
   };
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return (
     <PermissionsContext.Provider 
@@ -91,8 +91,17 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
 
 export function usePermissions() {
   const context = useContext(PermissionsContext);
+  
+  // Durante SSR/pré-rendering, retornar valores padrão em vez de erro
   if (context === undefined) {
-    throw new Error('usePermissions deve ser usado dentro de um PermissionsProvider');
+    // Retornar valores padrão seguros durante pré-rendering
+    return {
+      operatorPermissions: defaultOperatorPermissions,
+      updateOperatorPermissions: () => {},
+      resetToDefaults: () => {},
+      canConfigurePermissions: (role: string) => role === 'admin' || role === 'coordenador',
+    };
   }
+  
   return context;
 }

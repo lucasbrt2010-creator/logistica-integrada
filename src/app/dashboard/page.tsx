@@ -1,5 +1,8 @@
 'use client';
 
+// Forçar renderização dinâmica para evitar problemas com SSR
+export const dynamic = 'force-dynamic';
+
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -60,19 +63,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const { operatorPermissions, canConfigurePermissions } = usePermissions();
+  const { theme, toggleTheme } = useTheme();
   
-  // Hook de tema com proteção para SSR
-  let theme: 'light' | 'dark' = 'light';
-  let toggleTheme = () => {};
-  
-  try {
-    const themeContext = useTheme();
-    theme = themeContext.theme;
-    toggleTheme = themeContext.toggleTheme;
-  } catch (error) {
-    // Durante SSR, useTheme pode falhar - usar valores padrão
-    console.warn('ThemeContext não disponível durante SSR');
-  }
   const [trucks, setTrucks] = useState(mockTrucks);
   const [filtroStatus, setFiltroStatus] = useState<FilterValue>('todos');
   const [filtroData, setFiltroData] = useState<string | null>(null);

@@ -1,5 +1,3 @@
-import * as XLSX from 'xlsx';
-
 export interface ExcelRow {
   [key: string]: string | number | boolean | null;
 }
@@ -22,6 +20,9 @@ export interface ImportResult {
  */
 export async function processExcelFile(file: File): Promise<ImportResult> {
   try {
+    // Importação dinâmica do xlsx para evitar problemas com SSR
+    const XLSX = await import('xlsx');
+    
     // Validar tipo de arquivo
     const validTypes = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
