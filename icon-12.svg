@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="128" fill="#10b981"/>
+  <g transform="translate(256, 256)">
+    <!-- Caminhão/Galera -->
+    <path d="M-120,-60 L-120,40 L-80,40 L-80,60 L-40,60 L-40,40 L40,40 L40,60 L80,60 L80,40 L120,40 L120,-20 L60,-20 L60,-60 Z" 
+          fill="white" stroke="white" stroke-width="4"/>
+    
+    <!-- Cabine -->
+    <rect x="-120" y="-60" width="60" height="60" fill="white" stroke="white" stroke-width="4"/>
+    
+    <!-- Rodas -->
+    <circle cx="-80" cy="60" r="20" fill="#1f2937" stroke="white" stroke-width="4"/>
+    <circle cx="80" cy="60" r="20" fill="#1f2937" stroke="white" stroke-width="4"/>
+    
+    <!-- Detalhes da carga -->
+    <line x1="-40" y1="-40" x2="100" y2="-40" stroke="#1f2937" stroke-width="3"/>
+    <line x1="-40" y1="0" x2="100" y2="0" stroke="#1f2937" stroke-width="3"/>
+    
+    <!-- JM Logo -->
+    <text x="0" y="-100" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="white" text-anchor="middle">JM</text>
+  </g>
+</svg>
