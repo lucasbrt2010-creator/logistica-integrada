@@ -59,13 +59,24 @@ import { Loader2 } from 'lucide-react';
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { operatorPermissions, canConfigurePermissions } = usePermissions();
+  
+  // Hook de tema com proteção para SSR
+  let theme: 'light' | 'dark' = 'light';
+  let toggleTheme = () => {};
+  
+  try {
+    const themeContext = useTheme();
+    theme = themeContext.theme;
+    toggleTheme = themeContext.toggleTheme;
+  } catch (error) {
+    // Durante SSR, useTheme pode falhar - usar valores padrão
+    console.warn('ThemeContext não disponível durante SSR');
+  }
   const [trucks, setTrucks] = useState(mockTrucks);
   const [filtroStatus, setFiltroStatus] = useState<FilterValue>('todos');
   const [filtroData, setFiltroData] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
-  const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -84,18 +95,16 @@ export default function DashboardPage() {
 
   // Inicializar horário
   useEffect(() => {
-    setMounted(true);
     setCurrentTime(new Date());
   }, []);
 
   // Atualizar horário
   useEffect(() => {
-    if (!mounted) return;
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
     return () => clearInterval(timer);
-  }, [mounted]);
+  }, []);
 
   const handleLogout = () => {
     logout();
